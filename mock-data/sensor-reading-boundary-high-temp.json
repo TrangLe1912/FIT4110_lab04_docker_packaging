@@ -1,9 +1,9 @@
 [
   {
-    "device_id": "ESP32_01",
-    "temperature": 80,
-    "humidity": 65,
-    "motion": true,
-    "timestamp": "2026-05-18T10:30:00Z"
+    "device_id": "ESP32-LAB-A01",
+    "metric": "temperature",
+    "value": 80,
+    "unit": "celsius",
+    "timestamp": "2026-05-13T08:30:00+07:00"
   }
 ]
