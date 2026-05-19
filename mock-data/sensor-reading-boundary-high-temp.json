@@ -1,0 +1,9 @@
+[
+  {
+    "device_id": "ESP32_01",
+    "temperature": 80,
+    "humidity": 65,
+    "motion": true,
+    "timestamp": "2026-05-18T10:30:00Z"
+  }
+]

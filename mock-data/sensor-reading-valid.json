@@ -1,0 +1,16 @@
+[
+  {
+    "device_id": "ESP32_01",
+    "temperature": 38.5,
+    "humidity": 65,
+    "motion": false,
+    "timestamp": "2026-05-18T10:30:00Z"
+  },
+  {
+    "device_id": "ESP32_02",
+    "temperature": 29.2,
+    "humidity": 72,
+    "motion": true,
+    "timestamp": "2026-05-18T10:31:00Z"
+  }
+]

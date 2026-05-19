@@ -1,0 +1,235 @@
+openapi: 3.1.0
+info:
+  title: FIT4110 Lab 04 - IoT Ingestion API
+  version: 0.1.0
+  description: Contract used for Docker packaging verification in Lab 04.
+servers:
+  - url: http://localhost:8000
+    description: Local or Docker container service
+  - url: http://localhost:4010
+    description: Prism mock server
+tags:
+  - name: Health
+  - name: Readings
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Check service health
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              examples:
+                ok:
+                  value:
+                    status: ok
+                    service: iot-ingestion
+
+  /readings:
+    post:
+      tags: [Readings]
+      summary: Submit a sensor reading
+      operationId: createReading
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SensorReadingIn"
+            examples:
+              valid:
+                value:
+                  device_id: ESP32_01
+                  temperature: 38.5
+                  humidity: 65
+                  motion: false
+                  timestamp: "2026-05-18T10:30:00Z"
+              boundaryHighTemperature:
+                value:
+                  device_id: ESP32_01
+                  temperature: 80
+                  humidity: 65
+                  motion: true
+                  timestamp: "2026-05-18T10:30:00Z"
+      responses:
+        "201":
+          description: Reading accepted
+          headers:
+            X-Warning:
+              description: Warning returned when a reading is accepted but risky.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SensorReadingOut"
+              examples:
+                accepted:
+                  value:
+                    readingId: reading_001
+                    status: accepted
+                    device_id: ESP32_01
+                    acceptedAt: 1779098400
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /readings/latest:
+    get:
+      tags: [Readings]
+      summary: Get latest sensor reading
+      operationId: getLatestReading
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Latest reading
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No reading exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+  /readings/{reading_id}:
+    get:
+      tags: [Readings]
+      summary: Get reading by ID
+      operationId: getReadingById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reading_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^reading_[0-9]{3}$"
+          example: reading_001
+      responses:
+        "200":
+          description: Reading detail
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Reading not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+
+  schemas:
+    SensorReadingIn:
+      type: object
+      required: [device_id, temperature, timestamp]
+      properties:
+        device_id:
+          type: string
+          minLength: 1
+          example: ESP32_01
+        temperature:
+          type: number
+          minimum: -40
+          maximum: 85
+          example: 38.5
+        humidity:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 65
+        motion:
+          type: boolean
+          example: false
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-05-18T10:30:00Z"
+
+    SensorReadingOut:
+      type: object
+      required: [readingId, status, device_id, acceptedAt]
+      properties:
+        readingId:
+          type: string
+          pattern: "^reading_[0-9]{3}$"
+          example: reading_001
+        status:
+          type: string
+          enum: [accepted]
+          example: accepted
+        device_id:
+          type: string
+          example: ESP32_01
+        acceptedAt:
+          type: integer
+          example: 1779098400
+
+    HealthResponse:
+      type: object
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+          example: iot-ingestion
+
+    ProblemDetails:
+      type: object
+      required: [title, status]
+      properties:
+        type:
+          type: string
+          example: about:blank
+        title:
+          type: string
+          example: Bad Request
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
