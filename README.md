@@ -6,7 +6,7 @@
 **Repo nền:** `FIT4110_lab03_postman_mock_testing`
 
 > Lab 03 đã có OpenAPI contract, Postman Collection, Mock Server và Newman report.  
-> Lab 04 dùng lại các minh chứng đó để kiểm tra một điều mới: **service có chạy ổn khi được đóng gói thành Docker container không?**
+> Lab 04 dùng lại logic đó để kiểm tra một điều mới: **service có chạy ổn khi được đóng gói thành Docker container không?**
 
 ---
 
@@ -30,6 +30,24 @@ OpenAPI Contract
 → Evidence
 ```
 
+Lab 04 hiện đã đồng bộ lại với contract IoT của Lab 03 theo payload:
+
+```json
+{
+  "device_id": "ESP32-LAB-A01",
+  "metric": "temperature",
+  "value": 31.5,
+  "unit": "celsius",
+  "timestamp": "2026-05-13T08:30:00+07:00"
+}
+```
+
+Boundary dùng trong bài:
+
+```text
+temperature: -40 đến 80
+```
+
 Thông điệp chính của buổi học:
 
 > Một API pass Postman trên máy cá nhân chưa đủ.  
@@ -50,6 +68,7 @@ Sau khi hoàn thành Lab 04, mỗi nhóm cần làm được:
 - Build được Docker image.
 - Run được container từ image.
 - Chạy lại Postman Collection của Lab 03 trên container.
+- Kiểm tra được functional, auth, negative, boundary và schema lỗi `ProblemDetails`.
 - Xuất Newman report làm bằng chứng.
 - Viết được `RUN_LOCAL.md` hướng dẫn người khác chạy lại trong 3–5 bước.
 
@@ -81,26 +100,11 @@ FIT4110_lab04_docker_packaging/
 │       ├── FIT4110_lab04_mock.postman_environment.json
 │       └── FIT4110_lab04_local.postman_environment.json
 ├── mock-data/
-│   ├── sensor-reading-valid.json
-│   ├── sensor-reading-invalid-missing-device.json
-│   └── sensor-reading-boundary-high-temp.json
 ├── scripts/
-│   ├── start-prism-mock.sh
-│   ├── run-newman.sh
-│   └── wait-for-health.sh
 ├── docs/
-│   ├── TEAM_TASKS.md
-│   ├── DOCKER_LAB_GUIDE.md
-│   └── TROUBLESHOOTING.md
 ├── checklists/
-│   ├── docker_readiness_checklist.md
-│   └── submission_checklist.md
 ├── templates/
-│   ├── Dockerfile.fastapi.template
-│   ├── Dockerfile.node-fastify.template
-│   └── docker-evidence-template.md
 ├── reports/
-│   └── .gitkeep
 └── .github/
     └── workflows/
         └── docker-newman.yml
@@ -251,6 +255,8 @@ Một nhóm được xem là hoàn thành khi:
 - Có `.env.example`.
 - Có `RUN_LOCAL.md`.
 - Chạy lại Postman/Newman pass trên container.
+- Có test cho functional, auth, negative, boundary.
+- Error response trả đúng dạng `ProblemDetails`.
 - Có report trong `reports/`.
 - Có bằng chứng image tag đúng quy ước.
 
@@ -275,6 +281,9 @@ Dockerfile
 .dockerignore
 .env.example
 RUN_LOCAL.md
+contracts/<team>.openapi.yaml
+postman/collections/<team>.postman_collection.json
+postman/environments/<team>_local.postman_environment.json
 reports/newman-lab04-local.xml
 reports/newman-lab04-local.html
 ảnh chụp /health hoặc log container
