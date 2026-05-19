@@ -1,8 +1,8 @@
 [
   {
-    "temperature": 38.5,
-    "humidity": 65,
-    "motion": false,
-    "timestamp": "2026-05-18T10:30:00Z"
+    "metric": "temperature",
+    "value": 31.5,
+    "unit": "celsius",
+    "timestamp": "2026-05-13T08:30:00+07:00"
   }
 ]
